@@ -1,6 +1,14 @@
 import React from "react";
 import type { CategoryAnalytics } from "@/lib/api";
 
+/**
+ * Checks if the user prefers reduced motion (WCAG 2.3.3)
+ */
+const prefersReducedMotion = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+};
+
 export interface InsightsChartProps {
   loading?: boolean;
   categories?: CategoryAnalytics[];
@@ -11,11 +19,12 @@ export interface InsightsChartProps {
 export function InsightsChartSkeleton({ className }: { className?: string }) {
   // Approximate heights of the 10 category bars to match the loaded chart shape
   const barHeights = [70, 45, 90, 60, 30, 80, 50, 65, 40, 55];
+  const shouldAnimate = !prefersReducedMotion();
 
   return (
     <div
       data-testid="insights-chart-skeleton"
-      className={`bg-white dark:bg-ink-800 rounded-lg shadow p-5 col-span-2 md:col-span-2 animate-pulse ${className || ""}`}
+      className={`bg-white dark:bg-ink-800 rounded-lg shadow p-5 col-span-2 md:col-span-2 ${shouldAnimate ? 'animate-pulse' : ''} ${className || ""}`}
       aria-busy="true"
       aria-label="Loading chart data"
     >

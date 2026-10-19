@@ -6,8 +6,17 @@
  * - Breakdown by job category (pie chart)
  * - Average earnings per job stat
  * - Export data as CSV
+ * - Respects prefers-reduced-motion (WCAG 2.3.3)
  */
 import { useEffect, useState, useCallback } from "react";
+
+/**
+ * Checks if the user prefers reduced motion (WCAG 2.3.3)
+ */
+const prefersReducedMotion = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+};
 import { useRouter } from "next/router";
 import {
   LineChart,
@@ -165,6 +174,7 @@ export default function EarningsChart({ publicKey }: Props) {
   const categoryData = buildCategoryData(data.payments);
   const totalXlm = parseFloat(data.totalXlm) || 0;
   const avgPerJob = data.payments.length > 0 ? totalXlm / data.payments.length : 0;
+  const shouldAnimate = !prefersReducedMotion();
 
   return (
     <div className="space-y-6">
@@ -235,7 +245,15 @@ export default function EarningsChart({ publicKey }: Props) {
                     viewMode === "cumulative" ? "Cumulative" : "Earned",
                   ]}
                 />
-                <Line type="monotone" dataKey="total" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4, fill: "#f59e0b" }} />
+                <Line
+                  type="monotone"
+                  dataKey="total"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  dot={{ r: 4, fill: "#f59e0b" }}
+                  animationDuration={shouldAnimate ? 1500 : 0}
+                  isAnimationActive={shouldAnimate}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -263,6 +281,8 @@ export default function EarningsChart({ publicKey }: Props) {
                     outerRadius={80}
                     dataKey="value"
                     paddingAngle={3}
+                    animationDuration={shouldAnimate ? 1500 : 0}
+                    isAnimationActive={shouldAnimate}
                   >
                     {categoryData.map((_, index) => (
                       <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />

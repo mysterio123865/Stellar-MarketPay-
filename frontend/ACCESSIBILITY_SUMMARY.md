@@ -36,6 +36,13 @@ All WCAG 2.1 Level AA accessibility requirements have been successfully implemen
 - ✅ Enhanced focus indicators (2-3px)
 - ✅ No keyboard traps
 
+### 6. **Reduced Motion Support (WCAG 2.3.3)**
+- ✅ Respects `prefers-reduced-motion` media query
+- ✅ Disables count-up animations when preferred
+- ✅ Disables chart animations when preferred
+- ✅ Disables skeleton loading animations when preferred
+- ✅ Tailwind variants: `motion-safe:` and `motion-reduce:`
+
 ---
 
 ## 📊 Test Results
@@ -73,6 +80,11 @@ npm run test:a11y  # E2E tests
 - **Keyboard**: Press `Shift + T`
 - **Auto-detect**: Respects OS preferences
 
+### Test Reduced Motion
+- **Browser DevTools**: Emulate `prefers-reduced-motion: reduce` in Rendering settings
+- **Playwright**: Use `emulateMedia({ reducedMotion: 'reduce' })` in E2E tests
+- **OS Settings**: Enable "Reduce motion" in macOS, Windows, or Linux accessibility settings
+
 ---
 
 ## 📝 Implementation Details
@@ -94,6 +106,13 @@ npm run test:a11y  # E2E tests
 - `scripts/audit-contrast.mjs` - Contrast audit
 - `docs/ACCESSIBILITY.md` - Comprehensive guide
 - `ACCESSIBILITY_IMPLEMENTATION.md` - Technical docs
+
+### Reduced Motion Implementation (WCAG 2.3.3)
+- ✅ `tailwind.config.ts` - Added `motion-safe` and `motion-reduce` screen variants
+- ✅ `hooks/useCountUp.ts` - Disables count-up animation when reduced motion is preferred
+- ✅ `components/EarningsChart.tsx` - Disables chart animations when reduced motion is preferred
+- ✅ `components/InsightsChart.tsx` - Disables skeleton loading animation when reduced motion is preferred
+- ✅ All decorative animations respect user's motion preferences per WCAG 2.3.3
 
 ---
 
@@ -129,22 +148,24 @@ npm run test:a11y  # E2E tests
 
 ### Success Criteria Met
 
-✅ **1.4.3 Contrast (Minimum)** - All text meets 4.5:1 (normal) or 3:1 (large)  
-✅ **1.4.11 Non-text Contrast** - UI components meet 3:1 minimum  
-✅ **2.1.1 Keyboard** - All functionality keyboard accessible  
-✅ **2.4.7 Focus Visible** - Clear focus indicators in all themes  
-✅ **1.4.1 Use of Color** - Information not conveyed by color alone  
-✅ **4.1.2 Name, Role, Value** - Proper ARIA labels  
+✅ **1.4.3 Contrast (Minimum)** - All text meets 4.5:1 (normal) or 3:1 (large)
+✅ **1.4.11 Non-text Contrast** - UI components meet 3:1 minimum
+✅ **2.1.1 Keyboard** - All functionality keyboard accessible
+✅ **2.4.7 Focus Visible** - Clear focus indicators in all themes
+✅ **1.4.1 Use of Color** - Information not conveyed by color alone
+✅ **4.1.2 Name, Role, Value** - Proper ARIA labels
+✅ **2.3.3 Animation from Interactions** - Respects `prefers-reduced-motion`  
 
 ### Additional Features
 
-✅ OS theme preference detection  
-✅ OS high contrast preference detection  
-✅ Windows High Contrast Mode support  
-✅ Persistent user preferences  
-✅ No FOUC (Flash of Unstyled Content)  
-✅ Keyboard shortcuts  
-✅ Automated testing  
+✅ OS theme preference detection
+✅ OS high contrast preference detection
+✅ Windows High Contrast Mode support
+✅ Persistent user preferences
+✅ No FOUC (Flash of Unstyled Content)
+✅ Keyboard shortcuts
+✅ Automated testing
+✅ Reduced motion support (`prefers-reduced-motion`)  
 
 ---
 
@@ -186,7 +207,7 @@ Comprehensive documentation available:
 
 - Add focus trap for modals (already partially implemented)
 - Add skip navigation links for keyboard users
-- Add reduced motion support (`prefers-reduced-motion`)
+- ~~Add reduced motion support (`prefers-reduced-motion`)~~ ✅ **Implemented**
 - Add ARIA live regions for dynamic content
 - Add landmark roles for better screen reader navigation
 
@@ -202,7 +223,32 @@ When making UI changes:
 4. ✅ Test keyboard navigation manually
 5. ✅ Verify focus indicators are visible
 6. ✅ Check all three theme modes
-7. ✅ Update documentation if needed
+7. ✅ Test with `prefers-reduced-motion: reduce` enabled
+8. ✅ Update documentation if needed
+
+### Adding New Animations
+When adding decorative animations to components:
+
+1. **Check for reduced motion preference**:
+   ```javascript
+   const prefersReducedMotion = () => {
+     if (typeof window === 'undefined') return false;
+     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+   };
+   ```
+
+2. **Conditional animation**: Only animate when user hasn't requested reduced motion
+   ```javascript
+   const shouldAnimate = !prefersReducedMotion();
+   // Use shouldAnimate to conditionally enable/disable animations
+   ```
+
+3. **Tailwind variants**: Use `motion-safe:` and `motion-reduce:` prefixes
+   ```jsx
+   <div className="motion-safe:animate-pulse motion-reduce:opacity-50" />
+   ```
+
+4. **Chart libraries**: Set `isAnimationActive={shouldAnimate}` and `animationDuration={shouldAnimate ? 1500 : 0}`
 
 ---
 
@@ -231,10 +277,11 @@ Full compliance requires manual validation with assistive technologies and exper
 
 ---
 
-**Last Updated**: July 29, 2026  
-**Test Status**: ✅ All passing  
-**Contrast Compliance**: ✅ 100%  
-**WCAG Level**: AA  
+**Last Updated**: October 19, 2026
+**Test Status**: ✅ All passing
+**Contrast Compliance**: ✅ 100%
+**WCAG Level**: AA
+**Reduced Motion**: ✅ Implemented (WCAG 2.3.3)  
 
 ---
 

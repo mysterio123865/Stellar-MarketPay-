@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        'motion-safe': { raw: '(prefers-reduced-motion: no-preference)' },
+        'motion-reduce': { raw: '(prefers-reduced-motion: reduce)' },
+      },
       colors: {
         market: {
           50:  "#fffbeb",

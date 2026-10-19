@@ -6,6 +6,14 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
 
 /**
+ * Checks if the user prefers reduced motion (WCAG 2.3.3)
+ */
+const prefersReducedMotion = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+};
+
+/**
  * Formats a number with commas for thousands
  */
 const formatNumber = (value: number): string => {
@@ -27,6 +35,7 @@ interface UseCountUpReturn {
 /**
  * Hook that animates a number from 0 to target when the element enters viewport.
  * Uses requestAnimationFrame for 60fps performance and IntersectionObserver for visibility.
+ * Respects prefers-reduced-motion media query to disable animation per WCAG 2.3.3.
  *
  * @param target - The final number value to count up to
  * @param options - Configuration options
@@ -51,6 +60,13 @@ export default function useCountUp(
   useEffect(() => {
     // Prevent re-animation if already completed
     if (hasAnimatedRef.current) return;
+
+    // Skip animation if user prefers reduced motion (WCAG 2.3.3)
+    if (prefersReducedMotion()) {
+      setAnimatedValue(`${formatNumber(target)}${suffix}`);
+      hasAnimatedRef.current = true;
+      return;
+    }
 
     let isMounted = true;
 
